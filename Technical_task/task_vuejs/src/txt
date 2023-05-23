@@ -1,0 +1,90 @@
+<template>
+  <div>
+    <input v-model="searchQuery" @keyup="fetchCharacters" placeholder="Search by name" />
+
+    <ul>
+      <li v-for="character in filteredCharacters" :key="character.id">
+       <div> {{ character.name }}
+        <span v-for="nickname in  character.nicknames" :key="nickname">{{ nickname }}</span>
+        <span class="author">{{ character.favorites }}</span></div>
+      </li>
+    </ul>
+
+    <button @click="previousPage" :disabled="page === 1">Previous</button>
+    <button @click="nextPage">Next</button>
+  </div>
+</template>
+
+<script>
+import axios from 'axios';
+
+export default {
+ data() {
+  return {
+    page: 1,
+    limit: 10,
+    searchQuery: '',
+    characters: [],
+  };
+},
+mounted() {
+    this.fetchCharacters();
+  },
+methods: {
+  fetchCharacters() {
+    const url = `https://api.jikan.moe/v4/characters?page=${this.page}&limit=${this.limit}&q=${this.searchQuery}&order_by=favorites&sort=desc`;
+
+    axios.get(url)
+      .then(response => {
+        this.characters = response.data.data;
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  },
+  previousPage() {
+    if (this.page > 1) {
+      this.page--;
+      this.fetchCharacters();
+    }
+  },
+
+  nextPage() {
+    this.page++;
+    this.fetchCharacters();
+  },
+},
+computed: {
+  filteredCharacters() {
+    if (this.searchQuery.length === 0) {
+      return this.characters;
+    }
+
+    const query = this.searchQuery.toLowerCase();
+
+    return this.characters.filter(character =>
+      character.name.toLowerCase().includes(query)
+    );
+  },
+},
+
+ 
+
+};
+</script>
+
+function printFibonacciSeries(limit) {
+    let previous = 0;
+    let current = 1;
+    
+    while (current < limit) {
+      console.log(current);
+      let next = previous + current;
+      previous = current;
+      current = next;
+    }
+  }
+  
+  // Example usage
+  const input = 100;
+  printFibonacciSeries(input);
